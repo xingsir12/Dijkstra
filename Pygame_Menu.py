@@ -1,4 +1,5 @@
 import pygame
+from tkinter import messagebox, Tk
 import sys
 from Button import ImageButton
 import time
@@ -118,12 +119,14 @@ def settings_menu():
 
 
 def new_game():
+    pygame.display.set_caption('Выбери начальную позицию')
+
     begin_search = False
     target_box_set = False
     searching = True
     target_box = None
     start_box_set = False
-    running = True
+
 
     # Тело приложения
     class Box:
@@ -152,33 +155,32 @@ def new_game():
             if self.y < rows - 1:
                 self.neighbours.append(grid[self.x][self.y + 1])
 
+    # Количество клеток
+    columns = 32
+    rows = 20
+
+    box_width = width // columns
+    box_height = height // rows
+
+    # Клетки, очередь, путь
+    grid = []
+    queue = []
+    path = []
+
+    # Создание клеток
+    for i in range(columns):
+        arr = []
+        for j in range(rows):
+            arr.append(Box(i, j))
+        grid.append(arr)
+
+    # Установка сетки
+    for i in range(columns):
+        for j in range(rows):
+            grid[i][j].set_neighbours()
+
+    running = True
     while running:
-        pygame.display.set_caption('Выбери начальную позицию')
-
-        # Количество клеток
-        columns = 32
-        rows = 20
-
-        box_width = width // columns
-        box_height = height // rows
-
-        # Клетки, очередь, путь
-        grid = []
-        queue = []
-        path = []
-
-        # Создание клеток
-        for i in range(columns):
-            arr = []
-            for j in range(rows):
-                arr.append(Box(i, j))
-            grid.append(arr)
-
-        # Установка сетки
-        for i in range(columns):
-            for j in range(rows):
-                grid[i][j].set_neighbours()
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -195,6 +197,17 @@ def new_game():
                     pygame.display.set_caption('Выбери конечную цель')
                     target_box.target = False
                     target_box_set = False
+
+                elif event.key == pygame.K_3:
+                    start_box.start = False
+                    target_box.target = False
+                    begin_search = False
+                    target_box_set = False
+                    searching = False
+                    target_box = None
+                    start_box_set = False
+                    current_box.visited = False
+                    neighbour.queued = False
 
                     # Возврат в меню
                 elif event.key == pygame.K_ESCAPE:
@@ -216,6 +229,13 @@ def new_game():
                         queue.append(start_box)
                         start_box_set = True
 
+            # Удаление стен при помощи правой кнопки мыши
+            elif event.type == pygame.MOUSEMOTION and pygame.mouse.get_pressed()[2]:
+                    x, y = pygame.mouse.get_pos()
+                    i = x // box_width
+                    j = y // box_height
+                    grid[i][j].wall = False
+
             elif event.type == pygame.MOUSEMOTION:
                 x = pygame.mouse.get_pos()[0]
                 y = pygame.mouse.get_pos()[1]
@@ -224,6 +244,11 @@ def new_game():
                     i = x // box_width
                     j = y // box_height
                     grid[i][j].wall = True
+                # Рисуем стены
+                elif event.buttons[0]:
+                    i = x // box_width
+                    j = y // box_height
+                    grid[i][j].wall = False
                 # Ставим клетку цели
                 if event.buttons[2] and not target_box_set:
                     pygame.display.set_caption('Рисуй стены или нажми Enter')
@@ -243,12 +268,15 @@ def new_game():
                     begin_search = False
                 elif event.key == pygame.K_c:
                     begin_search = True
-
-
+                elif event.key == pygame.K_ESCAPE:
+                    pygame.display.set_caption('Алгоритм Дейкстры')
+                    fade()
+                    running = False
 
         if begin_search:
             shortest_path_length = 0
             total_seconds = 0
+
             if len(queue) > 0 and searching:
                 current_box = queue.pop(0)
                 current_box.visited = True
@@ -256,6 +284,7 @@ def new_game():
                 if current_box == target_box: #Если полностью выполнился цикл
                     pygame.display.set_caption('Алгоритм Дейкстры')
                     searching = False
+
 
                     while current_box.prior != start_box: #Пока путь не равен начальному значению
                         path.append(current_box.prior)
