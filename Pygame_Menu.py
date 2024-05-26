@@ -14,11 +14,8 @@ display = pygame.display.set_mode((width, height),)
 pygame.display.set_caption("Dijkstra's algorithm")
 main_back = pygame.image.load('dij.jpg')
 main_back2 = pygame.image.load('dij(4).jpg')
-main_back3 = pygame.image.load('dij(2).jpg')
 
 clock = pygame.time.Clock()
-
-pygame.display.set_caption('Алгоритм Дейкстры')
 
 icon = pygame.image.load('cherry.png')
 pygame.display.set_icon(icon)
@@ -43,7 +40,6 @@ def main_menu():
         text_surface = font.render("Алгоритм Дейкстры", True, 'black')
         text_rect = text_surface.get_rect(center=(width / 2, 100))
         display.blit(text_surface, text_rect)
-
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -80,7 +76,6 @@ def settings_menu():
                                "green_button2_hover.jpg", "odin-klik-myshki.mp3")
     back_button = ImageButton(width / 2 - (252 / 2), 450, 252, 74, "Назад", "green_button2.jpg",
                               "green_button2_hover.jpg", "odin-klik-myshki.mp3")
-
 
     running = True
     while running:
@@ -126,7 +121,6 @@ def new_game():
     searching = True
     target_box = None
     start_box_set = False
-
 
     # Тело приложения
     class Box:
@@ -198,20 +192,9 @@ def new_game():
                     target_box.target = False
                     target_box_set = False
 
-                elif event.key == pygame.K_3:
-                    start_box.start = False
-                    target_box.target = False
-                    begin_search = False
-                    target_box_set = False
-                    searching = False
-                    target_box = None
-                    start_box_set = False
-                    current_box.visited = False
-                    neighbour.queued = False
-
-                    # Возврат в меню
+                # Возврат в меню
                 elif event.key == pygame.K_ESCAPE:
-                    pygame.display.set_caption('Алгоритм Дейкстры')
+                    pygame.display.set_caption("Dijkstra's algorithm")
                     fade()
                     running = False
 
@@ -244,11 +227,7 @@ def new_game():
                     i = x // box_width
                     j = y // box_height
                     grid[i][j].wall = True
-                # Рисуем стены
-                elif event.buttons[0]:
-                    i = x // box_width
-                    j = y // box_height
-                    grid[i][j].wall = False
+
                 # Ставим клетку цели
                 if event.buttons[2] and not target_box_set:
                     pygame.display.set_caption('Рисуй стены или нажми Enter')
@@ -284,7 +263,6 @@ def new_game():
                 if current_box == target_box: #Если полностью выполнился цикл
                     pygame.display.set_caption('Алгоритм Дейкстры')
                     searching = False
-
 
                     while current_box.prior != start_box: #Пока путь не равен начальному значению
                         path.append(current_box.prior)
